@@ -13,8 +13,8 @@
     "watch": "tsc -w"
   },
   "devDependencies": {
-    "@types/frida-gum": "^13.1.0",
-    "@types/node": "^12.7.1",
+    "@types/frida-gum": "^14.1.0",
+    "@types/node": "^12.7.2",
     "typescript": "^3.5.3"
   }
 }
