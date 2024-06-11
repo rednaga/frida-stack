@@ -27,7 +27,7 @@ $ npm install frida-extended-stack
 
 ```typescript
 
-import { Stack } from 'frida-extended-stack'
+import { Stack } from 'frida-stack'
 
 function hook_exit() {
   const _exitPtr = Module.findExportByName('libc.so', '_exit');
