@@ -1,44 +1,129 @@
-const THUMB_HOOK_REDIRECT_SIZE = 8;
-const THUMB_BIT_REMOVAL_MASK = ptr(1).not();
+/**
+ * Copyright (C) 2024 Red Naga, LLC - Tim Strazzere <diff@protonmail.com>
+ *
+ * Helper class for getting stack traces and backtraces while debugging with
+ * Frida, primarily used for Android.
+ *
+ */
+export class Stack {
+    private threadObj!: Java.Wrapper<object>;
 
-const trampolines: NativePointer[] = [];
-const replacements: NativePointer[] = [];
+    constructor() {
+      if (!Java.available) {
+        throw new Error(`Unable to initialize a Java stacktrace object when Java is unavailable`);
+      }
 
-export function makeTrampoline(target: NativePointer): NativePointer {
-    const targetAddress = target.and(THUMB_BIT_REMOVAL_MASK);
-    const trampoline = Memory.alloc(Process.pageSize);
+      Java.perform(() => {
+        const ThreadDef = Java.use('java.lang.Thread');
+        this.threadObj = ThreadDef.$new();
+      });
+    }
 
-    Memory.patchCode(trampoline, 128, code => {
-        const writer = new ThumbWriter(code, { pc: trampoline });
-        const relocator = new ThumbRelocator(targetAddress, writer);
+    /**
+     * @returns {string} a java stack trace of where this was called
+     */
+    java(): string {
+      if (!this.threadObj) {
+        throw new Error(`No java stack available as no thread object available`);
+      }
+      let stackString = '';
+      this.threadObj
+        .currentThread()
+        .getStackTrace()
+        .map((stackLayer: string, index: number) => {
+          // Ignore our own creations on the stack (getStackStrace/getThreadStackTrace)
+          if (index > 1) {
+            stackString = stackString.concat(`${index - 1} => ${stackLayer.toString()}\n`);
+          }
+        });
 
-        let n: number;
-        do {
-            n = relocator.readOne();
-        } while (n < THUMB_HOOK_REDIRECT_SIZE);
+      return stackString;
+    }
 
-        relocator.writeAll();
+    /**
+     * @param context in which to get a native backtrace
+     * @returns string of backtrace
+     */
+    static native(context: CpuContext) {
+      return (
+        Thread.backtrace(context, Backtracer.ACCURATE)
+            .map(this.getModuleInfo)
+            .join('\n') + '\n'
+      );
+    }
 
-        if (!relocator.eoi) {
-            writer.putLdrRegAddress("pc", target.add(n));
+    /**
+     * Return a decorated string, similar to DebugSymbol.fromAddress
+     * and Process.getModuleFromAddress, however if those fail we
+     * will forcefully look up the address association via the mappings.
+     *
+     * For some reason, DebugSymbol.fromAddress doesn't always work,
+     * nor does Process.getModuleFromAddress, so utilize enumerating the
+     * addresses manually to figure out what the module is and the local
+     * offset inside it.
+     *
+     * @param address Address to look up details for.
+     * @returns string of relevant data `0x7713d25000 libsharedlib.so:0x1aae8`
+     */
+    static getModuleInfo(address: NativePointer) {
+      const debugSymbol = DebugSymbol.fromAddress(address);
+
+      if (debugSymbol.moduleName) {
+        // Add local offset?
+        return debugSymbol.toString();
+      }
+
+      // When hooking we might get something interesting like the following;
+      //  [
+      //    {
+      //      "base": "0x76fa7000",    <==== [anon:dalvik-free list large object space]
+      //      "protection": "rw-",           we don't actually care about this
+      //      "size": 536870912
+      //    },
+      //    {
+      //      "base": "0x771e939000", <==== this isn't the actual base, we need to refind that
+      //      "file": {
+      //        "offset": 663552,
+      //         "path": "/apex/com.android.runtime/lib64/bionic/libc.so",
+      //         "size": 0
+      //      },
+      //     "protection": "rwx",
+      //     "size": 4096
+      //   }
+      // ]
+
+      const builtSymbol = {
+        base: ptr(0x0),
+        moduleName: '',
+        path: '',
+        size: 0,
+      };
+
+      let ranges = Process.enumerateRanges('').filter(
+        (range) => range.base <= address && range.base.add(range.size) >= address,
+      );
+
+      ranges.forEach((range) => {
+        if (range.file) {
+          builtSymbol.path = range.file.path;
+          const moduleNameChunks = range.file.path.split('/');
+          builtSymbol.moduleName = moduleNameChunks[moduleNameChunks.length - 1];
+
+          builtSymbol.base = range.base.sub(range.file.offset);
         }
+      });
 
-        writer.flush();
-    });
+      ranges = Process.enumerateRanges('').filter(
+        (range) => range.base <= builtSymbol.base && range.base.add(range.size) >= builtSymbol.base,
+      );
 
-    trampolines.push(trampoline);
+      ranges.forEach((range) => {
+        if (builtSymbol.base === ptr(0x0) || builtSymbol.base < range.base) {
+          builtSymbol.base = range.base;
+        }
+        builtSymbol.size += range.size;
+      });
 
-    return trampoline.or(1);
-}
-
-export function replace(target: NativePointer, replacement: NativePointer): void {
-    const targetAddress = target.and(THUMB_BIT_REMOVAL_MASK);
-
-    Memory.patchCode(targetAddress, 128, code => {
-        const writer = new ThumbWriter(code, { pc: targetAddress });
-        writer.putLdrRegAddress("pc", replacement);
-        writer.flush();
-    });
-
-    replacements.push(replacement);
-}
+      return `${builtSymbol.base} ${builtSymbol.moduleName}:${address.sub(builtSymbol.base)}`;
+    }
+  }

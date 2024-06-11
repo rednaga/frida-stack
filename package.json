@@ -1,7 +1,7 @@
 {
-  "name": "frida-module-example",
+  "name": "frida-stack",
   "version": "1.0.0",
-  "description": "Example Frida module written in TypeScript",
+  "description": "Getting better stacks and backtraces in Frida",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
