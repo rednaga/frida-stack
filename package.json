@@ -9,6 +9,17 @@
     "/dist/**/*.d.ts"
   ],
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rednaga/frida-stack.git"
+  },
+  "author": "Tim Strazzere <diff@protonmail.com>",
+  "keywords": [
+    "frida",
+    "stacks",
+    "reverse-engineering"
+  ],
+  "license": "Apache-2.0",
   "scripts": {
     "prepare": "npm run build",
     "build": "tsc",

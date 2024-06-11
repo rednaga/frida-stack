@@ -4,7 +4,7 @@ Small frida module for ensuring you get the stack information you wanted.
 
 ## What?
 
-Often when using (Frida)[https://github.com/frida/frida], I would run into issues
+Often when using [Frida](https://github.com/frida/frida), I would run into issues
 with wanting specific stack traces. Then I realized I didn't have a specific context
 window, or the stack traces didn't contain the correct shared libraries in them. This
 resulted in me re-writing the same functions all the time.
