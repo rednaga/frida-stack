@@ -2,6 +2,9 @@
   "name": "frida-stack",
   "version": "1.0.0",
   "description": "Getting better stacks and backtraces in Frida",
+  "keywords": [
+    "frida-gum"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -26,8 +29,11 @@
     "watch": "tsc -w"
   },
   "devDependencies": {
-    "@types/frida-gum": "^18.5.1",
+    "@types/frida-gum": "^19.0.0",
     "@types/node": "^18.19.3",
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "frida-java-bridge": "^7.0.2"
   }
 }
