@@ -63,7 +63,7 @@ Now you have a library and the exact offset into the library for reversing.
 ## License
 
 ```
-Copyright 2020-2024 Tim 'diff' Strazzere <diff@protonmail.com>
+Copyright 2020-2025 Tim 'diff' Strazzere <diff@protonmail.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
