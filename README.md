@@ -20,7 +20,7 @@ and added some scanning of the `Process` memory ranges.
 ## Installing
 
 ```sh
-$ npm install frida-extended-stack
+$ npm install frida-stack
 ```
 
 ## Usage
