@@ -5,6 +5,9 @@
  * Frida, primarily used for Android.
  *
  */
+
+import Java from 'frida-java-bridge';
+
 export class Stack {
     private threadObj!: Java.Wrapper<object>;
 
