@@ -2,9 +2,6 @@
   "name": "frida-stack",
   "version": "1.0.0",
   "description": "Getting better stacks and backtraces in Frida",
-  "keywords": [
-    "frida-gum"
-  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -19,6 +16,7 @@
   "author": "Tim Strazzere <diff@protonmail.com>",
   "keywords": [
     "frida",
+    "frida-gum",
     "stacks",
     "reverse-engineering"
   ],
