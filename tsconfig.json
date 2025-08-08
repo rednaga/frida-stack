@@ -3,12 +3,20 @@
     "target": "es2020",
     "lib": ["es2020"],
     "module": "Node16",
-    "moduleResolution": "Node16",
+    "moduleResolution": "node16",
     "strict": true,
+    "skipLibCheck": true,
     "declaration": true,
     "outDir": "./dist"
   },
   "include": [
     "lib/**/*"
-  ]
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "node_modules",
+    "./node_modules",
+    "./node_modules/**/*",
+    "./node_modules/@types/node/index.d.ts",
+  ],
 }
