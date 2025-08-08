@@ -30,7 +30,7 @@ $ npm install frida-stack
 import { Stack } from 'frida-stack'
 
 function hook_exit() {
-  const _exitPtr = Module.findExportByName('libc.so', '_exit');
+  const _exitPtr = Process.findModuleByName("libc.so")?.findExportByName("_exit");
 
   if (_exitPtr) {
     const _exit = new NativeFunction(_exitPtr, 'int', ['int']);
