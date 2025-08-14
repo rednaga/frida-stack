@@ -22,11 +22,13 @@
   ],
   "license": "Apache-2.0",
   "scripts": {
+    "lint": "npx @biomejs/biome check --write ./lib",
     "prepare": "npm run build",
     "build": "tsc",
     "watch": "tsc -w"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
     "@types/frida-gum": "^19.0.1",
     "@types/node": "^24.2.1",
     "typescript": "^5.3.3"
