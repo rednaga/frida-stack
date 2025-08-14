@@ -42,6 +42,33 @@ export class Stack {
   }
 
   /**
+   * Note: This may block a java thread while running and act in a different manner
+   * than expected.
+   *
+   * @returns {string} a java stack trace of where this was called statically
+   */
+  static java(): string {
+    if (!Java.available) {
+      throw new Error(`Java is not available`);
+    }
+
+    let stackTrace = "";
+    Java.performNow(() => {
+      const trace = Java.use("java.lang.Thread")
+        .currentThread()
+        .getStackTrace();
+
+      // Skip our own frames (getStackStrace/getThreadStackTrace)
+      stackTrace = trace
+        .slice(2)
+        .map((frame: string, i: number) => `${i + 1} => ${String(frame)}`)
+        .join("\n");
+    });
+
+    return stackTrace;
+  }
+
+  /**
    * @param context in which to get a native backtrace
    * @returns string of backtrace
    */
