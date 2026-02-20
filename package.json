@@ -28,13 +28,13 @@
     "watch": "tsc -w"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.0",
+    "@biomejs/biome": "^2.4.3",
     "@types/frida-gum": "^19.0.1",
-    "@types/node": "^24.2.1",
+    "@types/node": "^25.3.0",
     "typescript": "^5.3.3"
   },
   "dependencies": {
     "frida-fs": "^7.0.0",
-    "frida-java-bridge": "^7.0.2"
+    "frida-java-bridge": "^7.0.12"
   }
 }
