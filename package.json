@@ -34,7 +34,6 @@
     "typescript": "^7.0.2"
   },
   "dependencies": {
-    "frida-fs": "^8.1.1",
     "frida-java-bridge": "^7.0.13"
   }
 }

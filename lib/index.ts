@@ -34,7 +34,7 @@ export class Stack {
 
     const trace = this.threadObj.currentThread().getStackTrace();
 
-    // Skip our own frames (getStackStrace/getThreadStackTrace)
+    // Skip our own frames (getStackTrace/getThreadStackTrace)
     return trace
       .slice(2)
       .map((frame: string, i: number) => `${i + 1} => ${String(frame)}`)
@@ -58,7 +58,7 @@ export class Stack {
         .currentThread()
         .getStackTrace();
 
-      // Skip our own frames (getStackStrace/getThreadStackTrace)
+      // Skip our own frames (getStackTrace/getThreadStackTrace)
       stackTrace = trace
         .slice(2)
         .map((frame: string, i: number) => `${i + 1} => ${String(frame)}`)
@@ -73,7 +73,7 @@ export class Stack {
    * @returns string of backtrace
    */
   static native(context: CpuContext): string {
-    return `${Thread.backtrace(context, Backtracer.ACCURATE).map(Stack.getModuleInfo).join("\n")}\n"`;
+    return `${Thread.backtrace(context, Backtracer.ACCURATE).map(Stack.getModuleInfo).join("\n")}`;
   }
 
   /**
@@ -124,7 +124,9 @@ export class Stack {
     };
 
     let ranges = Process.enumerateRanges("").filter(
-      (range) => range.base <= address && range.base.add(range.size) >= address,
+      (range) =>
+        range.base.compare(address) <= 0 &&
+        range.base.add(range.size).compare(address) > 0,
     );
 
     ranges.forEach((range) => {
@@ -139,12 +141,15 @@ export class Stack {
 
     ranges = Process.enumerateRanges("").filter(
       (range) =>
-        range.base <= builtSymbol.base &&
-        range.base.add(range.size) >= builtSymbol.base,
+        range.base.compare(builtSymbol.base) <= 0 &&
+        range.base.add(range.size).compare(builtSymbol.base) > 0,
     );
 
     ranges.forEach((range) => {
-      if (builtSymbol.base === ptr(0x0) || builtSymbol.base < range.base) {
+      if (
+        builtSymbol.base.isNull() ||
+        builtSymbol.base.compare(range.base) < 0
+      ) {
         builtSymbol.base = range.base;
       }
       builtSymbol.size += range.size;
