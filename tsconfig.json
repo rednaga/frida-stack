@@ -7,6 +7,8 @@
     "strict": true,
     "skipLibCheck": true,
     "declaration": true,
+    "rootDir": "./lib",
+    "types": ["frida-gum", "node"],
     "outDir": "./dist"
   },
   "include": [
